@@ -1,12 +1,12 @@
-# A simple ledger
+# My Ledger
 
-This is a simple ledger application.
+A simple ledger application.
 
 ## Requirements
 
 1. Record transaction: log each money movement.
-2. Calculate current balance: Compute current state of accounts.
-3. Transactions history: Provide access to historical transaction records.
+2. Calculate current balance: compute the current state of accounts.
+3. Transactions history: provide access to historical transaction records.
 
 ## Assumptions
 
