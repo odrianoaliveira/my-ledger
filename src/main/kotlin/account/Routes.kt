@@ -40,5 +40,9 @@ fun Route.accountRoutes() {
 
             call.respond(HttpStatusCode.OK, account)
         }
+
+        get("/{id}/balance") {
+            call.respond(HttpStatusCode.NotImplemented, "not implemented")
+        }
     }
 }

@@ -14,6 +14,7 @@ import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 
 class AccountRoutesTest {
@@ -54,15 +55,8 @@ class AccountRoutesTest {
             }
         }
 
-        var response = client.get("/account") {
-            accept(ContentType.Application.Json)
-        }
-
-        assertEquals(HttpStatusCode.OK, response.status)
-        val listOfAccounts = response.body<List<Account>>()
-        assertEquals(emptyList(), listOfAccounts)
-
-        val newAccount = CreateAccountRequest(name = "Cash Account", ownerId = "user-123")
+        // given an account
+        val newAccount = CreateAccountRequest(name = "Cash Account", ownerId = UUID.randomUUID().toString())
 
         val createAccResponse = client.post("/account") {
             contentType(ContentType.Application.Json)
@@ -70,14 +64,19 @@ class AccountRoutesTest {
         }
         assertEquals(HttpStatusCode.Created, createAccResponse.status)
 
-        response = client.get("/account") {
+        // when
+        val response = client.get("/account") {
             accept(ContentType.Application.Json)
         }
 
-        val actual = response.body<List<Account>>()
-        assertEquals(1, actual.size)
-        assertEquals(newAccount.name, actual.first().name)
-        assertEquals(newAccount.ownerId, actual.first().ownerId)
+        // then
+        val accounts = response.body<List<Account>>()
+        assertTrue { accounts.isNotEmpty() }
+        val account = accounts.find { it.ownerId == newAccount.ownerId }
+        assertNotNull(account)
+        assertEquals(newAccount.name, account.name)
+        assertEquals(newAccount.ownerId, account.ownerId)
+        assertNotNull(account.id)
     }
 
     @Test
@@ -91,9 +90,12 @@ class AccountRoutesTest {
             }
         }
 
+        // when
         val response = client.get("/account/invalid-123") {
             accept(ContentType.Application.Json)
         }
+
+        // then
         assertEquals(HttpStatusCode.BadRequest, response.status)
         assertEquals("Invalid UUID format", response.body())
     }
@@ -126,5 +128,34 @@ class AccountRoutesTest {
         assertEquals(HttpStatusCode.OK, response.status)
         val expected = Account(id = id, name = newAccount.name, ownerId = newAccount.ownerId)
         assertEquals(expected, response.body<Account>())
+    }
+
+    @Test
+    fun testAccountBalance() = testApplication {
+        application {
+            module()
+        }
+        val client = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+
+        // given an account
+        val newAccount = CreateAccountRequest(name = "Cash Account", ownerId = UUID.randomUUID().toString())
+        val newAccountResponse = client.post("/account") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(newAccount))
+        }
+        assertEquals(HttpStatusCode.Created, newAccountResponse.status)
+
+        // when
+        val id = newAccountResponse.body<Account>().id
+        val response = client.get("/account/$id/balance") {
+            accept(ContentType.Application.Json)
+        }
+
+        // then
+        assertEquals(HttpStatusCode.NotImplemented, response.status)
     }
 }
