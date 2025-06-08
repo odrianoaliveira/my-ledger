@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.serialization)
 }
 
-group = "com.adriano"
+group = "com.adriano.ledger"
 version = "0.0.1"
 
 application {
@@ -23,6 +23,7 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.config.yaml)
     implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.logback.classic)
 
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.test)

@@ -1,4 +1,4 @@
-package com.adriano.account
+package com.adriano.ledger.account
 
 import java.util.*
 

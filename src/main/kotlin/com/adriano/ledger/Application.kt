@@ -1,6 +1,6 @@
-package com.adriano
+package com.adriano.ledger
 
-import com.adriano.account.accountRoutes
+import com.adriano.ledger.account.accountRoutes
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*

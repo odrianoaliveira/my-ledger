@@ -1,4 +1,4 @@
-package com.adriano
+package com.adriano.ledger
 
 import kotlinx.serialization.Serializable
 
