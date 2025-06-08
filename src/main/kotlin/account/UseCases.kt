@@ -17,3 +17,7 @@ fun createAccount(name: String, ownerId: String): Account {
 fun listAllAccounts(): List<Account> {
     return accounts
 }
+
+fun getAccountById(id: String): Account? {
+    return accounts.find { it.id == id }
+}

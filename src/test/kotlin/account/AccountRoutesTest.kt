@@ -10,6 +10,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
 import kotlinx.serialization.json.Json
+import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -77,5 +78,53 @@ class AccountRoutesTest {
         assertEquals(1, actual.size)
         assertEquals(newAccount.name, actual.first().name)
         assertEquals(newAccount.ownerId, actual.first().ownerId)
+    }
+
+    @Test
+    fun testGetAccountInvalidId() = testApplication {
+        application {
+            module()
+        }
+        val client = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+
+        val response = client.get("/account/invalid-123") {
+            accept(ContentType.Application.Json)
+        }
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals("Invalid UUID format", response.body())
+    }
+
+    @Test
+    fun testGetAccountValidId() = testApplication {
+        application {
+            module()
+        }
+        val client = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        // given an account
+        val newAccount = CreateAccountRequest(name = "Cash Account", ownerId = UUID.randomUUID().toString())
+        val newAccountResponse = client.post("/account") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(newAccount))
+        }
+        assertEquals(HttpStatusCode.Created, newAccountResponse.status)
+
+        // when
+        val id = newAccountResponse.body<Account>().id
+        val response = client.get("/account/$id") {
+            accept(ContentType.Application.Json)
+        }
+
+        // then
+        assertEquals(HttpStatusCode.OK, response.status)
+        val expected = Account(id = id, name = newAccount.name, ownerId = newAccount.ownerId)
+        assertEquals(expected, response.body<Account>())
     }
 }
