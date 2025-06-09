@@ -1,6 +1,7 @@
 package com.adriano.ledger
 
 import com.adriano.ledger.account.accountRoutes
+import com.adriano.ledger.transaction.transactionRoutes
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -22,5 +23,6 @@ fun Application.module() {
 
     routing {
         accountRoutes()
+        transactionRoutes()
     }
 }
