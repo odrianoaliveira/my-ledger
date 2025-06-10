@@ -4,7 +4,7 @@ import java.util.*
 
 object AccountService {
 
-    fun createAccount(name: String, ownerId: String): Account {
+    fun createAccount(name: String, ownerId: UUID): Account {
         val account = Account(
             id = UUID.randomUUID(),
             name = name,

@@ -29,8 +29,8 @@ class TransactionRoutesTest {
             }
         }
 
-        val johnAccount = AccountService.createAccount("John", UUID.randomUUID().toString())
-        val milanAccount = AccountService.createAccount("Milan", UUID.randomUUID().toString())
+        val johnAccount = AccountService.createAccount("John", UUID.randomUUID())
+        val milanAccount = AccountService.createAccount("Milan", UUID.randomUUID())
         val amount = 5000L
         val payload = CreateTransactionRequest(
             description = "John sent 50 EUR to Milan",

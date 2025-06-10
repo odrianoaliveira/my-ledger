@@ -1,12 +1,16 @@
 package com.adriano.ledger.account
 
 import com.adriano.ledger.module
+import com.adriano.ledger.transaction.CreateTransactionRequest
+import com.adriano.ledger.transaction.Direction
+import com.adriano.ledger.transaction.Entry
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
+import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 import java.util.*
 import kotlin.test.Test
@@ -28,8 +32,7 @@ class AccountRoutesTest {
             }
         }
 
-        val payload = CreateAccountRequest(name = "Cash Account", ownerId = "user-123")
-
+        val payload = CreateAccountRequest(name = "Cash Account", ownerId = UUID.randomUUID())
         val response = client.post("/account") {
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(payload))
@@ -54,7 +57,7 @@ class AccountRoutesTest {
         }
 
         // given an account
-        val newAccount = CreateAccountRequest(name = "Cash Account", ownerId = UUID.randomUUID().toString())
+        val newAccount = CreateAccountRequest(name = "Cash Account", ownerId = UUID.randomUUID())
 
         val createAccResponse = client.post("/account") {
             contentType(ContentType.Application.Json)
@@ -109,7 +112,7 @@ class AccountRoutesTest {
             }
         }
         // given an account
-        val newAccount = CreateAccountRequest(name = "Cash Account", ownerId = UUID.randomUUID().toString())
+        val newAccount = CreateAccountRequest(name = "Cash Account", ownerId = UUID.randomUUID())
         val newAccountResponse = client.post("/account") {
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(newAccount))
@@ -129,7 +132,7 @@ class AccountRoutesTest {
     }
 
     @Test
-    fun `should compute the account balance`() = testApplication {
+    fun `should calculate balance`() = testApplication {
         application {
             module()
         }
@@ -139,21 +142,76 @@ class AccountRoutesTest {
             }
         }
 
-        // given an account
-        val newAccount = CreateAccountRequest(name = "Cash Account", ownerId = UUID.randomUUID().toString())
-        val newAccountResponse = client.post("/account") {
+        // given a john account
+        val johnUserId = UUID.randomUUID()
+        val johnAccResp = client.post("/account") {
             contentType(ContentType.Application.Json)
-            setBody(Json.encodeToString(newAccount))
+            setBody(Json.encodeToString(CreateAccountRequest(name = "Cash Account", ownerId = johnUserId)))
         }
-        assertEquals(HttpStatusCode.Created, newAccountResponse.status)
+        assertEquals(HttpStatusCode.Created, johnAccResp.status)
+        val johnAccId = johnAccResp.body<Account>().id
 
-        // when
-        val id = newAccountResponse.body<Account>().id
-        val response = client.get("/account/$id/balance") {
+        // and a milan account
+        val milanUserId = UUID.randomUUID()
+        val milanAccResp = client.post("/account") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(CreateAccountRequest(name = "Cash Account", ownerId = milanUserId)))
+        }
+        assertEquals(HttpStatusCode.Created, milanAccResp.status)
+        val milanAccId = milanAccResp.body<Account>().id
+
+        // and john sent money to milan
+        val payload1 = CreateTransactionRequest(
+            description = "John sent 100 EUR to Milan",
+            timestamp = Clock.System.now(),
+            entries = listOf(
+                Entry(
+                    accountId = johnAccId,
+                    amount = 10000L,
+                    direction = Direction.DEBIT
+                ),
+                Entry(
+                    accountId = milanAccId,
+                    amount = 10000L,
+                    direction = Direction.CREDIT
+                )
+            )
+        )
+        val response1 = client.post("/transaction") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(payload1))
+        }
+        assertEquals(HttpStatusCode.Created, response1.status)
+
+        // and milan sent money to john
+        val payload2 = CreateTransactionRequest(
+            description = "Milan sent 50 EUR to John",
+            timestamp = Clock.System.now(),
+            entries = listOf(
+                Entry(
+                    accountId = milanAccId,
+                    amount = 5000L,
+                    direction = Direction.DEBIT
+                ),
+                Entry(
+                    accountId = johnAccId,
+                    amount = 5000L,
+                    direction = Direction.CREDIT
+                )
+            )
+        )
+        val response2 = client.post("/transaction") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(payload2))
+        }
+        assertEquals(HttpStatusCode.Created, response2.status)
+
+        // when calculate john balance
+        val response = client.get("/account/$johnAccId/balance") {
             accept(ContentType.Application.Json)
         }
 
         // then
-        assertEquals(HttpStatusCode.NotImplemented, response.status)
+        assertEquals(HttpStatusCode.OK, response.status)
     }
 }

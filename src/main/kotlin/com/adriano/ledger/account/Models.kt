@@ -7,12 +7,12 @@ import java.util.*
 @Serializable
 data class CreateAccountRequest(
     val name: String,
-    val ownerId: String
+    @Serializable(UUIDSerializer::class) val ownerId: UUID
 )
 
 @Serializable
 data class Account(
     @Serializable(UUIDSerializer::class) val id: UUID,
     val name: String,
-    val ownerId: String
+    @Serializable(UUIDSerializer::class) val ownerId: UUID
 )
