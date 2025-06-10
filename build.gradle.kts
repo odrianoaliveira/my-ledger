@@ -1,4 +1,3 @@
-
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
@@ -29,4 +28,5 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.test)
     testImplementation(libs.ktor.client.content.negotiation)
+    testImplementation(libs.test.mockk)
 }
