@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 class TransactionRoutesTest {
 
     @Test
-    fun testCreateTransaction() = testApplication {
+    fun `should succeed when the request is valid`() = testApplication {
         application {
             module()
         }

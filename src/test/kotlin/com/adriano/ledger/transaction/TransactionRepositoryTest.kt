@@ -20,7 +20,7 @@ class TransactionRepositoryTest {
     }
 
     @Test
-    fun testSave() {
+    fun `should save a transaction`() {
         // given
         val transaction = createTransaction()
 
@@ -32,7 +32,7 @@ class TransactionRepositoryTest {
     }
 
     @Test
-    fun testFindById() {
+    fun `should find the transaction when id is given`() {
         // given
         val transactionId = UUID.randomUUID()
         val transaction = createTransaction(transactionId)
@@ -46,13 +46,13 @@ class TransactionRepositoryTest {
     }
 
     @Test
-    fun testFindByIdNotFound() {
+    fun `should return null when id does not exist`() {
         val result = TransactionRepository.findById(UUID.randomUUID())
         assertNull(result)
     }
 
     @Test
-    fun testFindAll() {
+    fun `should return all transactions`() {
         // given
         val transaction1 = createTransaction()
         TransactionRepository.save(transaction1)

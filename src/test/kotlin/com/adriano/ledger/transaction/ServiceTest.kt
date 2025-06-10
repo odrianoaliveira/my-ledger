@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 class ServiceTest {
 
     @Test
-    fun testCreateTransaction() {
+    fun `should create an account`() {
         val mariaAccId = UUID.randomUUID()
         val joaoAccId = UUID.randomUUID()
         val amount = 10000L

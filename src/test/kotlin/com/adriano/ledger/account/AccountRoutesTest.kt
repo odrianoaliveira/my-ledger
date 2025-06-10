@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 class AccountRoutesTest {
 
     @Test
-    fun testCreateAccount() = testApplication {
+    fun `should create an account when request is valid`() = testApplication {
         application {
             module()
         }
@@ -43,7 +43,7 @@ class AccountRoutesTest {
     }
 
     @Test
-    fun testListAllAccounts() = testApplication {
+    fun `should list all accounts`() = testApplication {
         application {
             module()
         }
@@ -78,7 +78,7 @@ class AccountRoutesTest {
     }
 
     @Test
-    fun testGetAccountInvalidId() = testApplication {
+    fun `should fail when id is invalid`() = testApplication {
         application {
             module()
         }
@@ -99,7 +99,7 @@ class AccountRoutesTest {
     }
 
     @Test
-    fun testGetAccountValidId() = testApplication {
+    fun `should return the account when id is given`() = testApplication {
         application {
             module()
         }
@@ -129,7 +129,7 @@ class AccountRoutesTest {
     }
 
     @Test
-    fun testAccountBalance() = testApplication {
+    fun `should compute the account balance`() = testApplication {
         application {
             module()
         }
