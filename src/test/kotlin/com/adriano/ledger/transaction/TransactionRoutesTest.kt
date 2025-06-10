@@ -1,5 +1,6 @@
 package com.adriano.ledger.transaction
 
+import com.adriano.ledger.account.AccountService
 import com.adriano.ledger.module
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -28,20 +29,20 @@ class TransactionRoutesTest {
             }
         }
 
-        val johnAccId = UUID.randomUUID()
-        val milanAccId = UUID.randomUUID()
+        val johnAccount = AccountService.createAccount("John", UUID.randomUUID().toString())
+        val milanAccount = AccountService.createAccount("Milan", UUID.randomUUID().toString())
         val amount = 5000L
         val payload = CreateTransactionRequest(
             description = "John sent 50 EUR to Milan",
             timestamp = Clock.System.now(),
             entries = listOf(
                 Entry(
-                    accountId = johnAccId,
+                    accountId = johnAccount.id,
                     amount = amount,
                     direction = Direction.DEBIT
                 ),
                 Entry(
-                    accountId = milanAccId,
+                    accountId = milanAccount.id,
                     amount = amount,
                     direction = Direction.CREDIT
                 )
