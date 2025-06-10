@@ -10,29 +10,29 @@ fun Route.accountRoutes() {
     route("/account") {
         post {
             val request = call.receive<CreateAccountRequest>()
-            val newAccount = createAccount(request.name, request.ownerId)
+            val newAccount = AccountService.createAccount(request.name, request.ownerId)
             call.respond(HttpStatusCode.Created, newAccount)
         }
 
         get {
-            call.respond(HttpStatusCode.OK, listAllAccounts())
+            call.respond(HttpStatusCode.OK, AccountService.getAllAccounts())
         }
 
         get("/{id}") {
-            val accountId = call.parameters["id"]
-            if (accountId == null) {
+            val idParam = call.parameters["id"]
+            if (idParam == null) {
                 call.respond(HttpStatusCode.BadRequest, "Missing id")
                 return@get
             }
 
-            try {
-                UUID.fromString(accountId)
+            val accountId = try {
+                UUID.fromString(idParam)
             } catch (_: IllegalArgumentException) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid UUID format")
                 return@get
             }
 
-            val account = getAccountById(accountId)
+            val account = AccountService.getAccountById(accountId)
             if (account == null) {
                 call.respond(HttpStatusCode.NotFound, "Account not found")
                 return@get

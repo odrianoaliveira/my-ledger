@@ -1,16 +1,17 @@
 package com.adriano.ledger.transaction
 
+import com.adriano.ledger.common.Repository
 import java.util.*
 
-object TransactionRepository {
+object TransactionRepository : Repository<Transaction> {
     private val transactions = mutableMapOf<UUID, Transaction>()
 
-    fun save(transaction: Transaction): Transaction {
-        transactions[transaction.id] = transaction
-        return transactions[transaction.id]!!
+    override fun save(value: Transaction): Transaction {
+        transactions[value.id] = value
+        return transactions[value.id]!!
     }
 
-    fun findById(id: UUID): Transaction? = transactions[id]
+    override fun findById(id: UUID): Transaction? = transactions[id]
 
-    fun findAll(): List<Transaction> = transactions.values.toList()
+    override fun findAll(): List<Transaction> = transactions.values.toList()
 }

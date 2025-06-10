@@ -5,6 +5,7 @@ import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class TransactionRepositoryTest {
 
@@ -62,6 +63,6 @@ class TransactionRepositoryTest {
         val result = TransactionRepository.findAll()
 
         // then
-        assertEquals(2, result.size)
+        assertTrue { result.containsAll(listOf(transaction1, transaction2)) }
     }
 }

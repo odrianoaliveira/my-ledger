@@ -1,4 +1,4 @@
-package com.adriano.ledger
+package com.adriano.ledger.common
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

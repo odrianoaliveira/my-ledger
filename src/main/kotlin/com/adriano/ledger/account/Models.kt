@@ -1,6 +1,8 @@
 package com.adriano.ledger.account
 
+import com.adriano.ledger.common.UUIDSerializer
 import kotlinx.serialization.Serializable
+import java.util.*
 
 @Serializable
 data class CreateAccountRequest(
@@ -10,7 +12,7 @@ data class CreateAccountRequest(
 
 @Serializable
 data class Account(
-    val id: String,
+    @Serializable(UUIDSerializer::class) val id: UUID,
     val name: String,
     val ownerId: String
 )
