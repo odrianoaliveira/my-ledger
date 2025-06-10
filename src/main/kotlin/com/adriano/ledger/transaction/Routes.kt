@@ -11,12 +11,12 @@ fun Route.transactionRoutes() {
 
         post {
             val request = call.receive<CreateTransactionRequest>()
-            val transaction = createTransaction(request)
+            val transaction = TransactionService.createTransaction(request)
             call.respond(HttpStatusCode.Created, transaction)
         }
 
         get {
-            val transactions = getAllTransactions()
+            val transactions = TransactionService.getAllTransactions()
             call.respond(HttpStatusCode.OK, transactions)
         }
 
@@ -28,7 +28,7 @@ fun Route.transactionRoutes() {
                 return@get call.respond(HttpStatusCode.BadRequest, "Invalid UUID format")
             }
 
-            val transaction = getTransactionById(id)
+            val transaction = TransactionService.getTransactionById(id)
             if (transaction == null) {
                 call.respond(HttpStatusCode.NotFound, "Transaction not found")
             } else {
