@@ -8,8 +8,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.datetime.Clock
-import org.junit.jupiter.api.BeforeEach
 import java.util.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -17,7 +17,7 @@ class AccountServiceTest {
     private lateinit var transactionService: TransactionService
     private lateinit var accountService: AccountService
 
-    @BeforeEach
+    @BeforeTest
     fun setUp() {
         transactionService = spyk<TransactionService>()
         accountService = AccountService(transactionService)

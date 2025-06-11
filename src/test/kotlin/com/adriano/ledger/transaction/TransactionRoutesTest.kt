@@ -10,19 +10,15 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
-import org.junit.jupiter.api.BeforeEach
 import java.util.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class TransactionRoutesTest {
 
     private lateinit var accountService: AccountService
     private lateinit var transactionService: TransactionService
 
-    @BeforeEach
+    @BeforeTest
     fun init() {
         transactionService = TransactionService()
         accountService = AccountService(transactionService)
