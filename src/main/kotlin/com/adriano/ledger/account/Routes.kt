@@ -6,10 +6,19 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.util.*
 
+fun CreateAccountRequest.validate() {
+    require(name.isNotBlank()) { "Account name cannot be blank" }
+}
+
 fun Route.accountRoutes(accountService: AccountService) {
     route("/account") {
         post {
             val request = call.receive<CreateAccountRequest>()
+            try {
+                request.validate()
+            } catch (e: IllegalArgumentException) {
+                return@post call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
+            }
             val newAccount = accountService.createAccount(request.name, request.ownerId)
             call.respond(HttpStatusCode.Created, newAccount)
         }
