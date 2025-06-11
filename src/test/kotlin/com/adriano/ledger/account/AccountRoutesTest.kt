@@ -158,7 +158,7 @@ class AccountRoutesTest {
             setBody(Json.encodeToString(CreateAccountRequest(name = "Cash Account", ownerId = milanUserId)))
         }
         assertEquals(HttpStatusCode.Created, milanAccResp.status)
-        val milanAccId = milanAccResp.body<Account>().id
+        val milanAccount = milanAccResp.body<Account>()
 
         // and john sent money to milan
         val payload1 = CreateTransactionRequest(
@@ -171,7 +171,7 @@ class AccountRoutesTest {
                     direction = Direction.DEBIT
                 ),
                 Entry(
-                    accountId = milanAccId,
+                    accountId = milanAccount.id,
                     amount = 10000L,
                     direction = Direction.CREDIT
                 )
@@ -189,7 +189,7 @@ class AccountRoutesTest {
             timestamp = Clock.System.now(),
             entries = listOf(
                 Entry(
-                    accountId = milanAccId,
+                    accountId = milanAccount.id,
                     amount = 5000L,
                     direction = Direction.DEBIT
                 ),
@@ -207,11 +207,17 @@ class AccountRoutesTest {
         assertEquals(HttpStatusCode.Created, response2.status)
 
         // when calculate john balance
-        val response = client.get("/account/$johnAccId/balance") {
+        val response = client.get("/account/${milanAccount.id}/balance") {
             accept(ContentType.Application.Json)
         }
 
         // then
         assertEquals(HttpStatusCode.OK, response.status)
+        val balanceResult = response.body<AccountBalanceResponse>()
+        val expectedBalance = AccountBalanceResponse(
+            account = milanAccount,
+            balanceInCents = 5000L
+        )
+        assertEquals(expectedBalance, balanceResult)
     }
 }

@@ -32,7 +32,7 @@ fun Entry.validate(index: Int, service: AccountService) {
     require(service.getAccountById(accountId) != null) { "Entry[$index]: accountId '$accountId' does not exist" }
 }
 
-fun Route.transactionRoutes() {
+fun Route.transactionRoutes(accountService: AccountService, transactionService: TransactionService) {
     route("/transaction") {
 
         post {
@@ -43,16 +43,16 @@ fun Route.transactionRoutes() {
             }
 
             try {
-                request.validate(AccountService)
+                request.validate(accountService)
             } catch (e: IllegalArgumentException) {
                 return@post call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
             }
-            val transaction = TransactionService.createTransaction(request)
+            val transaction = transactionService.createTransaction(request)
             call.respond(HttpStatusCode.Created, transaction)
         }
 
         get {
-            val transactions = TransactionService.getAllTransactions()
+            val transactions = transactionService.getAllTransactions()
             call.respond(HttpStatusCode.OK, transactions)
         }
 
@@ -64,7 +64,7 @@ fun Route.transactionRoutes() {
                 return@get call.respond(HttpStatusCode.BadRequest, "Invalid UUID format")
             }
 
-            val transaction = TransactionService.getTransactionById(id)
+            val transaction = transactionService.getTransactionById(id)
             if (transaction == null) {
                 call.respond(HttpStatusCode.NotFound, "Transaction not found")
             } else {

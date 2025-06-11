@@ -6,16 +6,16 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.util.*
 
-fun Route.accountRoutes() {
+fun Route.accountRoutes(accountService: AccountService) {
     route("/account") {
         post {
             val request = call.receive<CreateAccountRequest>()
-            val newAccount = AccountService.createAccount(request.name, request.ownerId)
+            val newAccount = accountService.createAccount(request.name, request.ownerId)
             call.respond(HttpStatusCode.Created, newAccount)
         }
 
         get {
-            call.respond(HttpStatusCode.OK, AccountService.getAllAccounts())
+            call.respond(HttpStatusCode.OK, accountService.getAllAccounts())
         }
 
         get("/{id}") {
@@ -32,7 +32,7 @@ fun Route.accountRoutes() {
                 return@get
             }
 
-            val account = AccountService.getAccountById(accountId)
+            val account = accountService.getAccountById(accountId)
             if (account == null) {
                 call.respond(HttpStatusCode.NotFound, "Account not found")
                 return@get
@@ -42,7 +42,30 @@ fun Route.accountRoutes() {
         }
 
         get("/{id}/balance") {
-            call.respond(HttpStatusCode.NotImplemented, "not implemented")
+            val idParam = call.parameters["id"]
+            if (idParam == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing id")
+                return@get
+            }
+
+            val accountId = try {
+                UUID.fromString(idParam)
+            } catch (_: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid UUID format")
+                return@get
+            }
+
+            val account = accountService.getAccountById(accountId)
+            if (account == null) {
+                return@get call.respond(HttpStatusCode.NotFound, "Account does not exist")
+            }
+
+            val balance = accountService.calculateBalance(account.id)
+            val balanceResponse = AccountBalanceResponse(
+                account = account,
+                balanceInCents = balance
+            )
+            call.respond(HttpStatusCode.OK, balanceResponse)
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.adriano.ledger
 
+import com.adriano.ledger.account.AccountService
 import com.adriano.ledger.account.accountRoutes
+import com.adriano.ledger.transaction.TransactionService
 import com.adriano.ledger.transaction.transactionRoutes
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -21,8 +23,10 @@ fun Application.module() {
         })
     }
 
+    val transactionService = TransactionService()
+    val accountService = AccountService(transactionService)
     routing {
-        accountRoutes()
-        transactionRoutes()
+        accountRoutes(accountService)
+        transactionRoutes(accountService, transactionService)
     }
 }

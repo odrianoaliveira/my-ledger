@@ -15,6 +15,10 @@ repositories {
     mavenCentral()
 }
 
+configurations.all {
+    exclude(group = "junit") //exclude junit4
+}
+
 dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
@@ -25,8 +29,12 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.kotlin.kotlinx.datetime)
 
-    testImplementation(libs.ktor.server.test.host)
-    testImplementation(libs.kotlin.test.test)
-    testImplementation(libs.ktor.client.content.negotiation)
     testImplementation(libs.test.mockk)
+    testImplementation(kotlin("test"))
+    testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.ktor.client.content.negotiation)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

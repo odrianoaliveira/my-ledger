@@ -3,7 +3,7 @@ package com.adriano.ledger.transaction
 import kotlinx.datetime.Clock
 import java.util.*
 
-object TransactionService {
+class TransactionService {
     fun createTransaction(createTransaction: CreateTransactionRequest): Transaction {
         val transaction = Transaction(
             id = UUID.randomUUID(),

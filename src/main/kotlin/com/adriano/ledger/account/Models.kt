@@ -11,6 +11,12 @@ data class CreateAccountRequest(
 )
 
 @Serializable
+data class AccountBalanceResponse(
+    val account: Account,
+    val balanceInCents: Long
+)
+
+@Serializable
 data class Account(
     @Serializable(UUIDSerializer::class) val id: UUID,
     val name: String,

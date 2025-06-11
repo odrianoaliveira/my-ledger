@@ -31,9 +31,10 @@ class ServiceTest {
                 )
             )
         )
+        val transactionService = TransactionService()
 
         // when
-        val result = TransactionService.createTransaction(request)
+        val result = transactionService.createTransaction(request)
         assertEquals(request.description, result.description)
         assertEquals(request.timestamp, result.timestamp)
         assertEquals(request.entries, result.entries)

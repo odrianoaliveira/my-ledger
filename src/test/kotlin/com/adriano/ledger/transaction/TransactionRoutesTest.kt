@@ -10,6 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
+import org.junit.jupiter.api.BeforeEach
 import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,6 +18,15 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class TransactionRoutesTest {
+
+    private lateinit var accountService: AccountService
+    private lateinit var transactionService: TransactionService
+
+    @BeforeEach
+    fun init() {
+        transactionService = TransactionService()
+        accountService = AccountService(transactionService)
+    }
 
     @Test
     fun `should succeed when the request is valid`() = testApplication {
@@ -29,8 +39,8 @@ class TransactionRoutesTest {
             }
         }
 
-        val johnAccount = AccountService.createAccount("John", UUID.randomUUID())
-        val milanAccount = AccountService.createAccount("Milan", UUID.randomUUID())
+        val johnAccount = accountService.createAccount("John", UUID.randomUUID())
+        val milanAccount = accountService.createAccount("Milan", UUID.randomUUID())
         val amount = 5000L
         val payload = CreateTransactionRequest(
             description = "John sent 50 EUR to Milan",
