@@ -57,7 +57,7 @@ erDiagram
     }
 ```
 
-## RESTFul API
+## RESTful API
 
 ### Account
 This section describes the Account API.
@@ -94,4 +94,21 @@ If the server starts successfully, you'll see the following output:
 2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
 2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
 ```
+
+## Testing the Service via make
+
+This project includes a [Makefile](src/main/bash/Makefile) that simplifies testing the API endpoints using curl.
+
+### Available Commands
+
+| Command                                                    | Description                                   |
+|------------------------------------------------------------|-----------------------------------------------|
+| `make create-account`                                      | Create a new account with random UUID         |
+| `make get-accounts`                                        | List all accounts                             |
+| `make get-account id=<UUID>`                               | Fetch account by ID                           |
+| `make get-account-balance id=<UUID>`                       | Get account balance                           |
+| `make create-transaction acc1=<DEBIT_ID> acc2=<CREDIT_ID>` | Create a new transaction between two accounts |
+| `make get-transactions`                                    | List all transactions                         |
+| `make get-transaction id=<UUID>`                           | Fetch transaction by ID                       |
+
 
