@@ -69,12 +69,28 @@ fun Route.accountRoutes(accountService: AccountService) {
                 return@get call.respond(HttpStatusCode.NotFound, "Account does not exist")
             }
 
-            val balance = accountService.calculateBalance(account.id)
-            val balanceResponse = AccountBalanceResponse(
-                account = account,
-                balanceInCents = balance
-            )
-            call.respond(HttpStatusCode.OK, balanceResponse)
+            val datetimeAsStr = call.queryParameters["datetime"]
+            if (datetimeAsStr != null && datetimeAsStr.isNotBlank()) {
+                try {
+                    val datetime = kotlinx.datetime.Instant.parse(datetimeAsStr)
+                    val balance = accountService.calculateBalance(account.id, datetime)
+                    val balanceResponse = AccountBalanceResponse(
+                        account = account,
+                        balanceInCents = balance
+                    )
+                    return@get call.respond(HttpStatusCode.OK, balanceResponse)
+                } catch (ex: IllegalArgumentException) {
+                    return@get call.respond(HttpStatusCode.BadRequest, "Invalid datetime provided")
+                }
+            } else {
+                val balance = accountService.calculateBalance(account.id)
+                val balanceResponse = AccountBalanceResponse(
+                    account = account,
+                    balanceInCents = balance
+                )
+                call.respond(HttpStatusCode.OK, balanceResponse)
+            }
+
         }
     }
 }

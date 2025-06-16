@@ -11,12 +11,15 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Clock.System.now
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.days
 
 
 class AccountRoutesTest {
@@ -208,6 +211,97 @@ class AccountRoutesTest {
 
         // when calculate john balance
         val response = client.get("/account/${milanAccount.id}/balance") {
+            accept(ContentType.Application.Json)
+        }
+
+        // then
+        assertEquals(HttpStatusCode.OK, response.status)
+        val balanceResult = response.body<AccountBalanceResponse>()
+        val expectedBalance = AccountBalanceResponse(
+            account = milanAccount,
+            balanceInCents = 5000L
+        )
+        assertEquals(expectedBalance, balanceResult)
+    }
+
+    @Test
+    fun `should calculate balance by account id and timestamp`() = testApplication {
+        application {
+            module()
+        }
+        val client = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+
+        // given a john account
+        val johnUserId = UUID.randomUUID()
+        val johnAccResp = client.post("/account") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(CreateAccountRequest(name = "Cash Account", ownerId = johnUserId)))
+        }
+        assertEquals(HttpStatusCode.Created, johnAccResp.status)
+        val johnAccId = johnAccResp.body<Account>().id
+
+        // and a milan account
+        val milanUserId = UUID.randomUUID()
+        val milanAccResp = client.post("/account") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(CreateAccountRequest(name = "Cash Account", ownerId = milanUserId)))
+        }
+        assertEquals(HttpStatusCode.Created, milanAccResp.status)
+        val milanAccount = milanAccResp.body<Account>()
+
+        // and john sent money to milan
+        val fiveDaysAgo: Instant = now() - 5.days
+        val payload1 = CreateTransactionRequest(
+            description = "John sent 100 EUR to Milan",
+            timestamp = fiveDaysAgo,
+            entries = listOf(
+                Entry(
+                    accountId = johnAccId,
+                    amount = 10000L,
+                    direction = Direction.DEBIT
+                ),
+                Entry(
+                    accountId = milanAccount.id,
+                    amount = 10000L,
+                    direction = Direction.CREDIT
+                )
+            )
+        )
+        val response1 = client.post("/transaction") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(payload1))
+        }
+        assertEquals(HttpStatusCode.Created, response1.status)
+
+        // and milan sent money to john
+        val payload2 = CreateTransactionRequest(
+            description = "Milan sent 50 EUR to John",
+            timestamp = fiveDaysAgo,
+            entries = listOf(
+                Entry(
+                    accountId = milanAccount.id,
+                    amount = 5000L,
+                    direction = Direction.DEBIT
+                ),
+                Entry(
+                    accountId = johnAccId,
+                    amount = 5000L,
+                    direction = Direction.CREDIT
+                )
+            )
+        )
+        val response2 = client.post("/transaction") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(payload2))
+        }
+        assertEquals(HttpStatusCode.Created, response2.status)
+
+        // when calculate john balance
+        val response = client.get("/account/${milanAccount.id}/balance?datetime=${fiveDaysAgo}") {
             accept(ContentType.Application.Json)
         }
 
