@@ -2,13 +2,14 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.serialization)
+    application
 }
 
 group = "com.adriano.ledger"
 version = "0.0.1"
 
 application {
-    mainClass = "io.ktor.server.netty.EngineMain"
+    mainClass.set("com.adriano.ledger.ApplicationKt")
 }
 
 repositories {
